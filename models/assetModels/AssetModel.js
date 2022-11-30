@@ -164,7 +164,6 @@ const assetSchema = new mongoose.Schema(
         assetViabilityId: { type: String, trim: true }
       }
     ],
-    active: { type: Boolean, default: false },
     createdBy: { type: String, trim: true },
     updatedBy: { type: String, trim: true }
   },

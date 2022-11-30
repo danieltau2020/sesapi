@@ -1,12 +1,27 @@
+import mongoose from "mongoose"
 import AssetModel from "../../models/assetModels/AssetModel.js"
+
+const verifyObjectId = (id) => {
+  const ObjectId = mongoose.Types.ObjectId
+
+  if (ObjectId.isValid(id)) {
+    if (String(new ObjectId(id)) === id) {
+      return true
+    }
+    return false
+  }
+  return false
+}
 
 export const findAllAsset = async (req, res, next) => {
   try {
     const limit = Number(req.query.limit)
     const page = Number(req.query.page) + 1
 
+    const ObjectId = mongoose.Types.ObjectId
+
     let searchQuery = {
-      assetId: req.query.assetId,
+      assetId: verifyObjectId(req.query.assetId) ? req.query.assetId : "",
       description: req.query.description,
       site: req.query.site
     }
@@ -26,7 +41,11 @@ export const findAllAsset = async (req, res, next) => {
           assets: [
             {
               $match: {
-                ...(searchQuery._id ? { _id: searchQuery.assetId } : {}),
+                ...(searchQuery.assetId
+                  ? {
+                      _id: new ObjectId(req.query.assetId)
+                    }
+                  : {}),
                 ...(searchQuery.description
                   ? { description: searchQuery.description }
                   : {}),
@@ -49,7 +68,11 @@ export const findAllAsset = async (req, res, next) => {
           totalCount: [
             {
               $match: {
-                ...(searchQuery._id ? { _id: searchQuery.assetId } : {}),
+                ...(searchQuery.assetId
+                  ? {
+                      _id: new ObjectId(req.query.assetId)
+                    }
+                  : {}),
                 ...(searchQuery.description
                   ? { description: searchQuery.description }
                   : {}),
@@ -74,7 +97,7 @@ export const findAllAsset = async (req, res, next) => {
     let err = new Error("Unable to get assets")
     err.status = 500
     err.errorType = "Find assets"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -107,13 +130,13 @@ export const findSingleAsset = async (req, res, next) => {
     let err = new Error("Unable to get asset")
     err.status = 500
     err.errorType = "Get asset"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
 export const createAsset = async (req, res, next) => {
   try {
-    const newAsset = new AssetModel()
+    const newAsset = new AssetModel(req.body)
     await newAsset.save()
 
     res.status(200).json({ assetId: newAsset._id })
@@ -121,7 +144,7 @@ export const createAsset = async (req, res, next) => {
     let err = new Error("Unable to create asset")
     err.status = 500
     err.errorType = "Create asset"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -156,7 +179,7 @@ export const updateAsset = async (req, res, next) => {
     let err = new Error("Unable to update asset")
     err.status = 500
     err.errorType = "Update asset"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -169,7 +192,7 @@ export const removeAsset = async (req, res, next) => {
     let err = new Error("Unable to remove asset")
     err.status = 500
     err.errorType = "Remove asset"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -182,7 +205,7 @@ export const removeInactiveAsset = async (req, res, next) => {
     let err = new Error("Unable to remove assets")
     err.status = 500
     err.errorType = "Remove inactive asset"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -221,7 +244,7 @@ export const uploadAssetPhoto = async (req, res, next) => {
     let err = new Error("Unable to upload asset photo")
     err.status = 500
     err.errorType = "Upload asset photo"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -287,7 +310,7 @@ export const updateAssetPhoto = async (req, res, next) => {
     let err = new Error("Unable to upload asset photo")
     err.status = 500
     err.errorType = "Upload asset photo"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
 
@@ -302,6 +325,6 @@ export const removeAssetPhoto = async (req, res, next) => {
     let err = new Error("Unable to remove asset photo")
     err.status = 500
     err.errorType = "Remove asset photo"
-    error.message.length > 0 ? next(error) : next(err)
+    error.message?.length > 0 ? next(error) : next(err)
   }
 }
